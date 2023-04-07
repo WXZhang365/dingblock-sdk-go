@@ -4,12 +4,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/WXZhang365/dingblock-sdk-go/modal"
+	"github.com/WXZhang365/dingblock-sdk-go/sign"
+	"github.com/WXZhang365/dingblock-sdk-go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
-	"dingblock-sdk-go/modal"
-	"dingblock-sdk-go/sign"
-	"dingblock-sdk-go/util"
 	"time"
 )
 

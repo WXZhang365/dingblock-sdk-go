@@ -8,7 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
-	"dingblock-sdk-go/modal"
+	"github.com/WXZhang365/dingblock-sdk-go/modal"
 )
 
 var (

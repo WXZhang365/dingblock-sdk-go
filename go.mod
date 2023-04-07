@@ -1,4 +1,4 @@
-module dingblock-sdk-go
+module github.com/WXZhang365/dingblock-sdk-go
 
 go 1.20
 
