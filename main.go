@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
-	"market-sdk/modal"
-	"market-sdk/sign"
-	"market-sdk/util"
+	"dingblock-sdk-go/modal"
+	"dingblock-sdk-go/sign"
+	"dingblock-sdk-go/util"
 	"time"
 )
 
