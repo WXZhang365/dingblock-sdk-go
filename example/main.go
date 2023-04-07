@@ -17,9 +17,18 @@ var (
 	PORT = ":8002"
 )
 
-func main() {
-	r := gin.Default()
+var (
+	dingBlockPubKey = `盯链公钥(开放平台获得)`
+	userPrivateKey  = `您的私钥`
+	rsaSign         = sign.RsaSign{
+		DingBlockPubKey: dingBlockPubKey,
+		UserPrivateKey:  userPrivateKey,
+	}
+)
 
+func main() {
+
+	r := gin.Default()
 	// 连通性测试
 	r.POST("/simpleVerify", func(c *gin.Context) {
 		fmt.Println("=======处理请求=======")
@@ -46,18 +55,19 @@ func main() {
 }
 
 func syncUserInfo(c *gin.Context) {
+	aesSign := sign.AesSign{AppId: "您的AppId", AppSecret: "您的AppSecret"}
 	var phoneNum = "用户电话号码"
 	var data = modal.PublicRequest{
-		AppId:     sign.AesSign.AppId,
+		AppId:     aesSign.AppId,
 		Timestamp: time.Now().UnixMilli(),
 		Nonce:     uuid.New().String(),
 		Method:    "market.transfer.sync",
 	}
-	encryptName, err := sign.AesSign.Encrypt("姓名")
+	encryptName, err := aesSign.Encrypt("姓名")
 	if err != nil {
 		panic(err)
 	}
-	encryptIdCard, err := sign.AesSign.Encrypt("身份证号")
+	encryptIdCard, err := aesSign.Encrypt("身份证号")
 
 	if err != nil {
 		panic(err)
@@ -72,10 +82,13 @@ func syncUserInfo(c *gin.Context) {
 	marshal, _ := json.Marshal(bizData)
 	data.BizData = string(marshal)
 
-	data.Sign, _ = sign.RsaSign.RequestSign(data)
+	data.Sign, _ = rsaSign.RequestSign(data)
 	_, result := util.Request.Post("盯链网关", data)
 	var publicArgs modal.PublicResponse
-	json.Unmarshal([]byte(result), &publicArgs)
+	err = json.Unmarshal([]byte(result), &publicArgs)
+	if err != nil {
+		panic(err)
+	}
 	c.JSON(200, publicArgs.BizData)
 
 }
@@ -93,8 +106,8 @@ func simpleVerifyRequest(ctx *gin.Context) {
 		Nonce:     uuid.New().String(),
 		Timestamp: time.Now().UnixMilli(),
 	}
-	if sign.RsaSign.Verify(requestStr, simpleVerify.Sign) == nil {
-		simpleResult.Sign, _ = sign.RsaSign.ResponseSign(simpleResult)
+	if rsaSign.Verify(requestStr, simpleVerify.Sign) == nil {
+		simpleResult.Sign, _ = rsaSign.ResponseSign(simpleResult)
 		simpleResult.Msg = "验签成功"
 		ctx.JSON(200, simpleResult)
 	} else {

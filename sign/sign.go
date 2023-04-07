@@ -11,43 +11,35 @@ import (
 	"github.com/WXZhang365/dingblock-sdk-go/modal"
 )
 
-var (
-	DingBlockPubKey = `盯链公钥(开放平台获得)`
-	UserPrivateKey  = `您的私钥`
-	RsaSign         = rsaSign{
-		DingBlockPubKey: DingBlockPubKey,
-		UserPrivateKey:  UserPrivateKey,
-	}
-	AesSign = aesSign{AppId: "您的AppId", appSecret: "您的AppSecret"}
-)
+var ()
 
 type Sign interface {
 	Sign(data string) (string, error)
 	Verify(originalData, signData string) error
 }
 
-type rsaSign struct {
+type RsaSign struct {
 	DingBlockPubKey string
 	UserPrivateKey  string
 }
-type aesSign struct {
+type AesSign struct {
 	AppId     string
-	appSecret string
+	AppSecret string
 }
 
-func (aesSign) GetSignStr(bizData string) {
+func (AesSign) GetSignStr(bizData string) {
 	return
 }
 
-func (a *aesSign) Encrypt(plainText string) ([]byte, error) {
-	return modal.AesEcbEncrypt([]byte(plainText), []byte(a.appSecret))
+func (a *AesSign) Encrypt(plainText string) ([]byte, error) {
+	return modal.AesEcbEncrypt([]byte(plainText), []byte(a.AppSecret))
 }
 
-func (a *aesSign) Decrypt(signData []byte) (originalData []byte, err error) {
-	return modal.AesEcbDecrypt(signData, []byte(a.appSecret))
+func (a *AesSign) Decrypt(signData []byte) (originalData []byte, err error) {
+	return modal.AesEcbDecrypt(signData, []byte(a.AppSecret))
 }
 
-func (r *rsaSign) baseSign(s string) (string, error) {
+func (r *RsaSign) baseSign(s string) (string, error) {
 	fmt.Printf("【盯链】签名字符串:  %s \n", s)
 	decodeString, _ := base64.StdEncoding.DecodeString(r.UserPrivateKey)
 	privateKey, err := x509.ParsePKCS8PrivateKey(decodeString)
@@ -68,19 +60,19 @@ func (r *rsaSign) baseSign(s string) (string, error) {
 	return out, nil
 }
 
-func (r *rsaSign) ResponseSign(data modal.PublicResponse) (string, error) {
+func (r *RsaSign) ResponseSign(data modal.PublicResponse) (string, error) {
 	s := fmt.Sprintf("bizData=%s&code=%d&msg=%s&nonce=%s&timestamp=%d", data.BizData, data.Code, data.Msg, data.Nonce, data.Timestamp)
 	fmt.Printf("【盯链】签名字符串:  %s \n", s)
 	return r.baseSign(s)
 }
 
-func (r *rsaSign) RequestSign(data modal.PublicRequest) (string, error) {
+func (r *RsaSign) RequestSign(data modal.PublicRequest) (string, error) {
 	s := fmt.Sprintf("appId=%s&bizData=%s&method=%s&nonce=%s&timestamp=%d", data.AppId, data.BizData, data.Method, data.Nonce, data.Timestamp)
 	fmt.Printf("【盯链】签名字符串:  %s \n", s)
 	return r.baseSign(s)
 }
 
-func (r *rsaSign) Verify(originalData, signData string) error {
+func (r *RsaSign) Verify(originalData, signData string) error {
 	sign, err := base64.StdEncoding.DecodeString(signData)
 	if err != nil {
 		println(err.Error())
