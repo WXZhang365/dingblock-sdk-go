@@ -1,4 +1,4 @@
-module market-sdk
+module dingblock-sdk-go
 
 go 1.20
 
